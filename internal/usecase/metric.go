@@ -17,6 +17,9 @@ type MetricUseCase interface {
 
 	// GetCounter возвращает counter метрику
 	GetCounter(name string) (int64, error)
+
+	// GetAllMetrics возвращает все метрики в виде map
+	GetAllMetrics() (map[string]interface{}, error)
 }
 
 // metricService - реализация use case для работы с метриками
@@ -105,4 +108,37 @@ func (s *metricService) GetCounter(name string) (int64, error) {
 	}
 
 	return counter.Value().Int64(), nil
+}
+
+// GetAllMetrics возвращает все метрики в виде map
+func (s *metricService) GetAllMetrics() (map[string]interface{}, error) {
+	result := make(map[string]interface{})
+
+	// Получаем все gauge метрики
+	gauges, err := s.repo.GetAllGauges()
+	if err != nil {
+		return nil, err
+	}
+
+	gaugeMap := make(map[string]float64)
+	for _, gauge := range gauges {
+		gaugeMap[gauge.Name().String()] = gauge.Value().Float64()
+	}
+
+	result["gauges"] = gaugeMap
+
+	// Получаем все counter метрики
+	counters, err := s.repo.GetAllCounters()
+	if err != nil {
+		return nil, err
+	}
+
+	counterMap := make(map[string]int64)
+	for _, counter := range counters {
+		counterMap[counter.Name().String()] = counter.Value().Int64()
+	}
+
+	result["counters"] = counterMap
+
+	return result, nil
 }

@@ -91,3 +91,29 @@ func (r *MemoryRepository) GetOrCreateCounter(name domain.MetricName) (*domain.C
 
 	return newCounter, nil
 }
+
+// GetAllGauges возвращает все gauge метрики
+func (r *MemoryRepository) GetAllGauges() ([]*domain.Gauge, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	result := make([]*domain.Gauge, 0, len(r.gauges))
+	for _, gauge := range r.gauges {
+		result = append(result, gauge)
+	}
+
+	return result, nil
+}
+
+// GetAllCounters возвращает все counter метрики
+func (r *MemoryRepository) GetAllCounters() ([]*domain.Counter, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	result := make([]*domain.Counter, 0, len(r.counters))
+	for _, counter := range r.counters {
+		result = append(result, counter)
+	}
+
+	return result, nil
+}

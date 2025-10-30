@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
-	"net/http"
 
-	httpAdapter "github.com/michaelecom/practicum-metrics/internal/adapter/http"
+	adapter "github.com/michaelecom/practicum-metrics/internal/adapter/gin"
+
 	"github.com/michaelecom/practicum-metrics/internal/adapter/repository"
 	"github.com/michaelecom/practicum-metrics/internal/usecase"
 )
@@ -17,15 +17,12 @@ func main() {
 	metricUseCase := usecase.NewMetricUseCase(metricRepo)
 
 	// Создание HTTP обработчика
-	metricHandler := httpAdapter.NewMetricHandler(metricUseCase)
-
-	// Регистрация маршрутов
-	http.HandleFunc("/update/", metricHandler.UpdateMetric)
+	server := adapter.NewServer(metricUseCase)
 
 	// Запуск сервера
 	addr := "localhost:8080"
 	log.Printf("Starting metrics server on %s", addr)
-	if err := http.ListenAndServe(addr, nil); err != nil {
+	if err := server.Start(addr); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }

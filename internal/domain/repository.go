@@ -16,4 +16,10 @@ type MetricRepository interface {
 
 	// GetOrCreateCounter возвращает существующую counter метрику или создаёт новую
 	GetOrCreateCounter(name MetricName) (*Counter, error)
+
+	// GetAllGauges возвращает все gauge метрики
+	GetAllGauges() ([]*Gauge, error)
+
+	// GetAllCounters возвращает все counter метрики
+	GetAllCounters() ([]*Counter, error)
 }

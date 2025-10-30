@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"os"
 	"os/signal"
@@ -14,7 +15,18 @@ import (
 )
 
 func main() {
-	baseURL := "http://" + "localhost:8080"
+	var addr string
+	var pollInterval int
+	var reportInterval int
+
+	// Парсинг флагов командной строки
+	flag.StringVar(&addr, "a", "localhost:8080", "HTTP server endpoint address")
+	flag.IntVar(&pollInterval, "p", 2, "Poll interval in seconds")
+	flag.IntVar(&reportInterval, "r", 10, "Report interval in seconds")
+
+	flag.Parse()
+
+	baseURL := "http://" + addr
 
 	// Создание HTTP клиента
 	metricSender := client.NewHTTPClient(baseURL)
@@ -24,8 +36,8 @@ func main() {
 
 	// Создание бизнес-логики
 	agentConfig := usecase.AgentConfig{
-		PollInterval:   2 * time.Second,
-		ReportInterval: 10 * time.Second,
+		PollInterval:   time.Duration(pollInterval) * time.Second,
+		ReportInterval: time.Duration(reportInterval) * time.Second,
 	}
 
 	agent := usecase.NewAgentUseCase(metricCollector, metricSender, agentConfig)

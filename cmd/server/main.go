@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 
 	adapter "github.com/michaelecom/practicum-metrics/internal/adapter/gin"
@@ -10,6 +11,13 @@ import (
 )
 
 func main() {
+	var addr string
+
+	// Парсинг флагов командной строки
+	flag.StringVar(&addr, "a", "localhost:8080", "HTTP server endpoint address")
+
+	flag.Parse()
+
 	// Создание репозитория
 	metricRepo := repository.NewMemoryRepository()
 
@@ -20,7 +28,6 @@ func main() {
 	server := adapter.NewServer(metricUseCase)
 
 	// Запуск сервера
-	addr := "localhost:8080"
 	log.Printf("Starting metrics server on %s", addr)
 	if err := server.Start(addr); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
